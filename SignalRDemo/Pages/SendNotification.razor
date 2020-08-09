@@ -1,0 +1,27 @@
+﻿@page "/SendNotification"
+@inject NavigationManager navigationManager
+
+<button @onclick="sendNotification">Send notification !</button>
+
+@code {
+
+    private HubConnection hubConnection;
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+
+    Task Notify() => hubConnection.SendAsync("SendNotify");
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(navigationManager.ToAbsoluteUri("/broadcastHub"))
+            .Build();
+
+        await hubConnection.StartAsync();
+    }
+
+    async Task sendNotification()
+    {
+        if (IsConnected) await Notify();
+    }
+
+}
